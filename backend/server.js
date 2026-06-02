@@ -1129,6 +1129,10 @@ app.get('/api/reports/admin-productivity', authenticateToken, isAuthorizedForRep
 });
 
 // Start Server
-app.listen(PORT, () => {
-    console.log(`Server administrasi gudang berjalan di http://localhost:${PORT}`);
-});
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`Server administrasi gudang berjalan di http://localhost:${PORT}`);
+    });
+}
+
+module.exports = app;
