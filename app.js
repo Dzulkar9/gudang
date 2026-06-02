@@ -759,9 +759,11 @@ function enableAllFormFields(formId) {
 // ------------------------------------------
 async function renderDashboardPanel() {
     try {
-        const statsData = await apiFetch('/dashboard');
-        const barangDb = await apiFetch('/barang');
-        const distDb = await apiFetch('/distribusi');
+        const [statsData, barangDb, distDb] = await Promise.all([
+            apiFetch('/dashboard'),
+            apiFetch('/barang'),
+            apiFetch('/distribusi')
+        ]);
 
         // Apply values to UI
         document.getElementById('kpi-sku').innerText = statsData.stats.total_sku;
