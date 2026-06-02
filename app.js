@@ -49,7 +49,8 @@ async function apiFetch(endpoint, options = {}) {
 
         const data = await response.json();
         if (!response.ok) {
-            throw new Error(data.message || 'Terjadi kesalahan pada sistem.');
+            console.error("DEBUG API ERROR:", data);
+            throw new Error((data.error ? `${data.message} (${data.error})` : data.message) || 'Terjadi kesalahan pada sistem.');
         }
 
         return data;
