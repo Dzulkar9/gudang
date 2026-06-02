@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Administrasi Gudang & Distribusi - PT Graha Prima Mentari</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <!-- ==========================================
+         1. LOGIN PAGE (OVERLAY)
+         ========================================== -->
+    <div id="login-overlay" class="login-wrapper">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="lock-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M12 1.5a5.25 5.25 0 0 0-5.25 5.25v3a3 3 0 0 0-3 3v6.75a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3v-6.75a3 3 0 0 0-3-3v-3c0-2.9-2.35-5.25-5.25-5.25Zm3.75 8.25v-3a3.75 3.75 0 1 0-7 0v3h7Z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <h2>Sign in to your account</h2>
+                <p>Sistem Administrasi Gudang PT Graha Prima Mentari</p>
+            </div>
+
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-username">Username</label>
+                    <input type="text" id="login-username" placeholder="Masukkan username" required
+                        autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" placeholder="Masukkan password" required
+                        autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Sign in</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         2. MAIN SYSTEM LAYOUT
+         ========================================== -->
+    <div id="main-app" class="app-container hidden">
+        <!-- Backdrop overlay for mobile sidebar -->
+        <div id="sidebar-backdrop" class="sidebar-backdrop hidden no-print"></div>
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <!-- Close button for mobile sidebar -->
+            <button id="sidebar-close-btn" class="sidebar-close-btn mobile-only no-print" aria-label="Tutup Menu">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                    style="width: 20px; height: 20px;">
+                    <path fill-rule="evenodd"
+                        d="M5.47 5.47a.75.75 0 0 1 1.06 0L12 10.94l5.47-5.47a.75.75 0 1 1 1.06 1.06L13.06 12l5.47 5.47a.75.75 0 1 1-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 1 1-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 0 1 0-1.06Z"
+                        clip-rule="evenodd" />
+                </svg>
+            </button>
+            <div class="brand">
+                <div class="brand-logo">
+                    <img src="LOGO.png" alt="PT GPM Logo">
+                </div>
+                <div class="brand-text">
+                    <h1>PT GPM</h1>
+                    <p>Warehouse Admin</p>
+                </div>
+            </div>
+
+            <div class="profile-card">
+                <div class="avatar">
+                    <span id="user-avatar-initial">A</span>
+                </div>
+                <div class="profile-info">
+                    <h3 id="sidebar-user-name">Budi Santoso</h3>
+                    <p id="sidebar-user-role">Admin Gudang</p>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-target="panel-dashboard">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M11.47 3.07a.75.75 0 0 1 .74 0l11.026 6.362c.509.294.509 1.033 0 1.327L12.21 17.121a.75.75 0 0 1-.74 0L.444 10.76a.75.75 0 0 1 0-1.327L11.47 3.07ZM12 18.562l10.28-5.935c.345-.2.72.167.545.505l-10.28 19.86a.75.75 0 0 1-.545 0L1.72 13.132c-.175-.338.2-.705.545-.505L12 18.562Z" />
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
+
+                <a href="#" class="nav-item" data-target="panel-barang">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M3.375 3C2.339 3 1.5 3.84 1.5 4.875v.75c0 1.036.84 1.875 1.875 1.875h17.25c1.035 0 1.875-.84 1.875-1.875v-.75C22.5 3.84 21.66 3 20.625 3H3.375Z" />
+                        <path fill-rule="evenodd"
+                            d="m3.087 9 .54 9.175A3 3 0 0 0 6.623 21h10.753a3 3 0 0 0 2.997-2.825L20.913 9H3.087Zm7.663 3.75a.75.75 0 0 0-1.5 0v3.5a.75.75 0 0 0 1.5 0v-3.5Zm3.75-.75a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5a.75.75 0 0 1 .75-.75Z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    <span>Manajemen Barang</span>
+                </a>
+
+                <a href="#" class="nav-item" data-target="panel-stok-masuk">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M12 2.25a.75.75 0 0 1 .75.75v11.69l3.22-3.22a.75.75 0 1 1 1.06 1.06l-4.5 4.5a.75.75 0 0 1-1.06 0l-4.5-4.5a.75.75 0 1 1 1.06-1.06l3.22 3.22V3a.75.75 0 0 1 .75-.75Zm-9 16.5a.75.75 0 0 1 .75-.75h16.5a.75.75 0 0 1 0 1.5H3.75a.75.75 0 0 1-.75-.75Z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    <span>Input Stok Masuk</span>
+                </a>
+
+                <a href="#" class="nav-item" data-target="panel-distribusi">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M3.375 4.5C2.339 4.5 1.5 5.34 1.5 6.375V13.5h12V4.5H3.375ZM15 4.5v9h7.5V6.375C22.5 5.34 21.66 4.5 20.625 4.5H15ZM1.5 15v1.125c0 1.036.84 1.875 1.875 1.875h17.25c1.035 0 1.875-.84 1.875-1.875V15H1.5Z" />
+                        <path d="M6 10.5a.75.75 0 0 1 .75-.75h4.5a.75.75 0 0 1 0 1.5h-4.5A.75.75 0 0 1 6 10.5Z" />
+                    </svg>
+                    <span>Kelola Distribusi</span>
+                </a>
+
+                <a href="#" class="nav-item" data-target="panel-driver">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0zM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    <span>Kelola Driver</span>
+                </a>
+
+                <a href="#" class="nav-item" data-target="panel-outlet">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M5.223 2.25c-.273 0-.523.16-.635.41l-2.25 5a.75.75 0 0 0.317.973A4.85 4.85 0 0 0 5.25 9.75a4.85 4.85 0 0 0 2.596-.75.75.75 0 0 1 .808 0 4.85 4.85 0 0 0 5.192 0 .75.75 0 0 1 .808 0 4.85 4.85 0 0 0 5.192 0 .75.75 0 0 1 .808 0A4.85 4.85 0 0 0 21.25 9c.125 0 .248-.031.36-.09a.75.75 0 0 0.317-.973l-2.25-5a.625.625 0 0 0-.635-.41H5.223zm16.527 8.35c-.328.093-.674.15-1.025.15a6.347 6.347 0 0 1-4.725-2.073 6.347 6.347 0 0 1-9.45 0A6.347 6.347 0 0 1 1.775 10.75c-.35 0-.697-.057-1.025-.15V19.5A2.25 2.25 0 0 0 3 21.75h18a2.25 2.25 0 0 0 2.25-2.25v-8.9c-.328.093-.674.15-1.025.15z" />
+                    </svg>
+                    <span>Kelola Outlet</span>
+                </a>
+
+                <a href="#" class="nav-item" data-target="panel-laporan">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M5.625 1.5c-1.036 0-1.875.84-1.875 1.875v17.25c0 1.035.84 1.875 1.875 1.875h12.75c1.035 0 1.875-.84 1.875-1.875V7.875A3.375 3.375 0 0 0 18 4.5h-5.625zM15 13.5a.75.75 0 0 0 0-1.5H9a.75.75 0 0 0 0 1.5h6zm.75 3a.75.75 0 0 1-.75.75H9a.75.75 0 0 1 0-1.5h6a.75.75 0 0 1 .75.75zM12.75 6a.75.75 0 0 0-.75-.75H9a.75.75 0 0 0 0 1.5h3a.75.75 0 0 0 .75-.75z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    <span>Laporan</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button id="logout-button" class="btn btn-secondary btn-block">Sign Out</button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="main-content">
+            <!-- TOP BAR -->
+            <header class="topbar">
+                <button id="mobile-sidebar-toggle" class="btn-icon mobile-only no-print" aria-label="Buka Menu">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                        style="width: 24px; height: 24px;">
+                        <path fill-rule="evenodd"
+                            d="M3 6.75A.75.75 0 0 1 3.75 6h16.5a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 6.75ZM3 12a.75.75 0 0 1 .75-.75h16.5a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 12Zm0 5.25a.75.75 0 0 1 .75-.75h16.5a.75.75 0 0 1 0 1.5H3.75a.75.75 0 0 1-.75-.75Z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <div class="page-title">
+                    <h2 id="current-panel-title">Dashboard</h2>
+                </div>
+
+                <div class="topbar-actions">
+                    <div class="user-pill">
+                        <span class="user-badge" id="badge-user-role">Admin</span>
+                        <span class="user-name" id="badge-user-name">Budi Santoso</span>
+                    </div>
+                </div>
+            </header>
+
+
+            <!-- PANEL: DASHBOARD -->
+            <section id="panel-dashboard" class="content-panel">
+                <!-- CHARTS ROW -->
+                <div class="grid grid-2">
+                    <div class="card glass">
+                        <div class="card-header">
+                            <h3>Komposisi Stok per Kategori</h3>
+                        </div>
+                        <div class="card-body chart-container">
+                            <canvas id="chart-kategori"></canvas>
+                        </div>
+                    </div>
+                    <div class="card glass">
+                        <div class="card-header">
+                            <h3>Tren Mutasi Barang Masuk vs Keluar</h3>
+                        </div>
+                        <div class="card-body chart-container">
+                            <canvas id="chart-mutasi"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI CARDS GRID -->
+                <div class="grid grid-4 kpi-row">
+                    <div class="card kpi-card glass border-blue">
+                        <div class="kpi-icon blue">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M3.375 3C2.339 3 1.5 3.84 1.5 4.875v.75c0 1.036.84 1.875 1.875 1.875h17.25c1.035 0 1.875-.84 1.875-1.875v-.75C22.5 3.84 21.66 3 20.625 3H3.375Z" />
+                                <path fill-rule="evenodd"
+                                    d="m3.087 9 .54 9.175A3 3 0 0 0 6.623 21h10.753a3 3 0 0 0 2.997-2.825L20.913 9H3.087Z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="kpi-data">
+                            <span class="kpi-value" id="kpi-sku">0</span>
+                            <span class="kpi-title">Total SKU Barang</span>
+                            <span class="kpi-subtitle" id="kpi-sku-detail">Total Kategori: 0</span>
+                        </div>
+                    </div>
+
+                    <div class="card kpi-card glass border-red">
+                        <div class="kpi-icon red">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.401 3.003ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75Zm0 8.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="kpi-data">
+                            <span class="kpi-value" id="kpi-kritis">0</span>
+                            <span class="kpi-title">Stok Kritis</span>
+                            <span class="kpi-subtitle text-red" id="kpi-kritis-detail">Stok <= Minimum</span>
+                        </div>
+                    </div>
+
+                    <div class="card kpi-card glass border-yellow">
+                        <div class="kpi-icon yellow">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M19.5 22.5a3 3 0 0 0 3-3v-8.174l-6.828-6.828A2.25 2.25 0 0 0 14.078 3.82L12 4.168V13.5h9.75v3a2.25 2.25 0 0 1-2.25 2.25H6.75a2.25 2.25 0 0 1-2.25-2.25V6.75A2.25 2.25 0 0 1 6.75 4.5h2.418l.32-1.602A2.25 2.25 0 0 0 7.28 1.158L3 2.228A3 3 0 0 0 .75 5.12V19.5a3 3 0 0 0 3 3h15.75Z" />
+                            </svg>
+                        </div>
+                        <div class="kpi-data">
+                            <span class="kpi-value" id="kpi-perjalanan">0</span>
+                            <span class="kpi-title">Dalam Perjalanan</span>
+                            <span class="kpi-subtitle" id="kpi-perjalanan-detail">Status: Pengiriman</span>
+                        </div>
+                    </div>
+
+                    <div class="card kpi-card glass border-green">
+                        <div class="kpi-icon green">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.6Z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="kpi-data">
+                            <span class="kpi-value" id="kpi-sukses">0</span>
+                            <span class="kpi-title">Pengiriman Sukses</span>
+                            <span class="kpi-subtitle" id="kpi-sukses-detail">Status: Selesai</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ACTIVITY LOG -->
+                <div class="card glass">
+                    <div class="card-header">
+                        <h3>Log Aktivitas Terbaru</h3>
+                    </div>
+                    <div class="card-body">
+                        <ul class="activity-list" id="activity-log-list">
+                            <!-- Populated dynamically -->
+                            <li class="empty-state">Belum ada aktivitas tercatat.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PANEL: MANAJEMEN BARANG -->
+            <section id="panel-barang" class="content-panel hidden">
+                <div class="grid grid-3-1">
+                    <!-- LEFT COLUMN: FORM BARANG -->
+                    <div class="card glass">
+                        <div class="card-header">
+                            <h3>FORM BARANG</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="form-barang">
+                                <input type="hidden" id="barang-id">
+                                <div class="grid grid-2">
+                                    <div class="form-group">
+                                        <label for="barang-sku">Kode SKU</label>
+                                        <input type="text" id="barang-sku" placeholder="Misal: SKU-006" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="barang-nama">Nama Barang</label>
+                                        <input type="text" id="barang-nama" placeholder="Misal: Fanta Orange 1.5L"
+                                            required>
+                                    </div>
+                                </div>
+                                <div class="grid grid-3">
+                                    <div class="form-group">
+                                        <label for="barang-kategori">Kategori</label>
+                                        <select id="barang-kategori" required>
+                                            <option value="">-- Pilih --</option>
+                                            <option value="Minuman Bersoda">Minuman Bersoda</option>
+                                            <option value="Air Mineral">Air Mineral</option>
+                                            <option value="Jus Buah">Jus Buah</option>
+                                            <option value="Teh Kemasan">Teh Kemasan</option>
+                                            <option value="Susu">Susu</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="barang-harga">Harga (Rp)</label>
+                                        <input type="number" id="barang-harga" placeholder="0" min="0" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="barang-stok-min">Stok Minimum</label>
+                                        <input type="number" id="barang-stok-min" value="10" min="0" required>
+                                    </div>
+                                </div>
+                                <div class="form-group" id="container-stok-awal">
+                                    <label for="barang-stok-awal">Stok Awal Sekarang</label>
+                                    <input type="number" id="barang-stok-awal" value="0" min="0">
+                                    <small>Hanya diisi saat membuat barang baru pertama kali.</small>
+                                </div>
+                                <div class="form-actions align-right">
+                                    <button type="button" id="btn-batal-barang"
+                                        class="btn btn-secondary hidden">Batal</button>
+                                    <button type="submit" id="btn-simpan-barang"
+                                        class="btn btn-primary">Tambah/Simpan</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INVENTORY TABLE CARD -->
+                <div class="card glass mt-4">
+                    <div class="card-header">
+                        <h3>Daftar Barang (Master Inventory)</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-scroll-hint">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                            </svg>
+                            <span>Geser tabel ke samping untuk melihat data lengkap</span>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="table" id="table-barang">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Kode SKU</th>
+                                        <th>Nama Barang</th>
+                                        <th>Kategori</th>
+                                        <th>Harga</th>
+                                        <th>Stok Sekarang</th>
+                                        <th>Stok Minimum</th>
+                                        <th>Status</th>
+                                        <th class="role-gudang-only">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PANEL: INPUT STOK MASUK (INBOUND) -->
+            <section id="panel-stok-masuk" class="content-panel hidden">
+                <div class="grid grid-3-1">
+                    <div class="card glass">
+                        <div class="card-header">
+                            <h3>Form Inbound (Barang Masuk)</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="form-inbound">
+                                <div class="grid grid-2">
+                                    <div class="form-group">
+                                        <label for="inbound-no-transaksi">Nomor Transaksi</label>
+                                        <input type="text" id="inbound-no-transaksi" readonly>
+                                        <small>Otomatis digenerate sistem</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inbound-barang">Pilih Barang</label>
+                                        <select id="inbound-barang" required>
+                                            <option value="">-- Pilih Barang --</option>
+                                            <!-- Dynamically populated -->
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="grid grid-2">
+                                    <div class="form-group">
+                                        <label for="inbound-qty">Jumlah (Qty)</label>
+                                        <input type="number" id="inbound-qty" placeholder="Jumlah masuk" min="1"
+                                            required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inbound-keterangan">Keterangan</label>
+                                        <input type="text" id="inbound-keterangan"
+                                            placeholder="Misal: Kiriman Supplier, Restok">
+                                    </div>
+                                </div>
+                                <div class="form-actions align-right">
+                                    <button type="submit" id="btn-proses-inbound" class="btn btn-primary">Tambah
+                                        Stok</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RECENT INBOUND TABLE -->
+                <div class="card glass mt-4">
+                    <div class="card-header">
+                        <h3>Riwayat Mutasi Masuk (Recent Inbounds)</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-scroll-hint">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                            </svg>
+                            <span>Geser tabel ke samping untuk melihat data lengkap</span>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="table" id="table-inbound">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Nomor Transaksi</th>
+                                        <th>Tanggal</th>
+                                        <th>Kode SKU</th>
+                                        <th>Nama Barang</th>
+                                        <th>Kategori</th>
+                                        <th>Jumlah(Qty)</th>
+                                        <th>Keterangan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Dynamic -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PANEL: KELOLA DISTRIBUSI (OUTBOUND & SURAT JALAN) -->
+            <section id="panel-distribusi" class="content-panel hidden">
+                <div class="grid grid-1-1" id="distribusi-input-row">
+
+                    <!-- LEFT COLUMN: FORM KELOLA DISTRIBUSI -->
+                    <div class="card glass">
+                        <div class="card-header">
+                            <h3>FORM KELOLA DISTRIBUSI</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="form-distribusi">
+                                <div class="form-group">
+                                    <label for="distribusi-no-transaksi">Nomor Transaksi Outbound</label>
+                                    <input type="text" id="distribusi-no-transaksi" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label for="distribusi-surat-jalan">Nomor Surat Jalan</label>
+                                    <input type="text" id="distribusi-surat-jalan" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label for="distribusi-driver">Nama Driver</label>
+                                    <select id="distribusi-driver" required>
+                                        <option value="">-- Pilih Driver --</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="distribusi-outlet">Tujuan Outlet</label>
+                                    <select id="distribusi-outlet" required>
+                                        <option value="">-- Pilih Outlet --</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="distribusi-keterangan">Keterangan Tambahan</label>
+                                    <input type="text" id="distribusi-keterangan" placeholder="Keterangan pengiriman">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT COLUMN: PILIH BARANG (CHECKLIST & VALIDATION) -->
+                    <div class="card glass">
+                        <div class="card-header">
+                            <h3>Pilih Barang</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="validation-block">
+                                <h4 class="sub-title">Validasi Stok</h4>
+                                <div class="inline-form">
+                                    <select id="select-validasi-barang">
+                                        <option value="">-- Pilih Barang --</option>
+                                        <!-- Dynamic -->
+                                    </select>
+                                    <input type="number" id="input-validasi-qty" placeholder="Qty" min="1">
+                                    <button type="button" id="btn-cek-stok" class="btn btn-secondary">Cek Stok</button>
+                                </div>
+                                <div id="feedback-validasi-stok" class="feedback-badge hidden">
+                                    <!-- Dynamic warning/success -->
+                                </div>
+                                <div class="align-right mt-2">
+                                    <button type="button" id="btn-tambah-checklist" class="btn btn-success"
+                                        disabled>Tambah ke Daftar</button>
+                                </div>
+                            </div>
+
+                            <hr class="divider">
+
+                            <h4 class="sub-title">Daftar Barang Distribusi</h4>
+                            <div class="checklist-table-wrapper">
+                                <table class="table table-compact" id="table-checklist">
+                                    <thead>
+                                        <tr>
+                                            <th>Kode SKU</th>
+                                            <th>Nama Barang</th>
+                                            <th>Qty</th>
+                                            <th>Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="body-checklist">
+                                        <tr>
+                                            <td colspan="4" class="align-center text-muted">Belum ada barang dipilih.
+                                                Gunakan validasi stok di atas.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="form-actions align-right mt-3">
+                                <button type="button" id="btn-proses-distribusi" class="btn btn-primary btn-lg"
+                                    disabled>Proses Outbound & Buat Surat Jalan</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- ACTIVE DISTRIBUTIONS TABLE (TRACKING) -->
+                <div class="card glass mt-4">
+                    <div class="card-header">
+                        <h3>Daftar Pengiriman (Status & Surat Jalan)</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-scroll-hint">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                            </svg>
+                            <span>Geser tabel ke samping untuk melihat data lengkap</span>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="table" id="table-distribusi">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>No Surat Jalan</th>
+                                        <th>Outlet Tujuan</th>
+                                        <th>Driver</th>
+                                        <th>Tanggal Kirim</th>
+                                        <th>Status Pengiriman</th>
+                                        <th>Detail Barang</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Dynamically filled -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PANEL: KELOLA DRIVER (ADMIN ONLY) -->
+            <section id="panel-driver" class="content-panel hidden">
+                <div class="grid grid-3-1">
+                    <!-- LEFT COLUMN: FORM KELOLA DRIVER -->
+                    <div class="card glass">
+                        <div class="card-header">
+                            <h3>Form Tambah Driver Baru</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="form-driver">
+                                <div class="form-group">
+                                    <label for="driver-nama">Nama Lengkap / Data Diri</label>
+                                    <input type="text" id="driver-nama" placeholder="Misal: Rian Hidayat" required>
+                                    <small class="text-muted">Nama lengkap driver beserta sufiksnya.</small>
+                                </div>
+                                <div class="grid grid-2">
+                                    <div class="form-group">
+                                        <label for="driver-username">Username Login</label>
+                                        <input type="text" id="driver-username" placeholder="Misal: rian" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="driver-password">Password Login</label>
+                                        <input type="password" id="driver-password" placeholder="Masukkan password" required autocomplete="new-password">
+                                    </div>
+                                </div>
+                                <div class="form-actions align-right mt-3">
+                                    <button type="submit" id="btn-simpan-driver" class="btn btn-primary">Tambah Driver</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DRIVERS TABLE CARD -->
+                <div class="card glass mt-4">
+                    <div class="card-header">
+                        <h3>Daftar Pengantar Barang (Driver) Terdaftar</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-scroll-hint">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                            </svg>
+                            <span>Geser tabel ke samping untuk melihat data lengkap</span>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="table" id="table-driver">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Username</th>
+                                        <th>Nama Driver</th>
+                                        <th>Password</th>
+                                        <th>Peran</th>
+                                        <th>Tanggal Terdaftar</th>
+                                        <th class="align-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Terisi secara dinamis oleh JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PANEL: KELOLA OUTLET (ADMIN ONLY) -->
+            <section id="panel-outlet" class="content-panel hidden">
+                <div class="grid grid-3-1">
+                    <!-- LEFT COLUMN: FORM KELOLA OUTLET -->
+                    <div class="card glass">
+                        <div class="card-header">
+                            <h3>Form Tambah Outlet Baru</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="form-outlet">
+                                <div class="form-group">
+                                    <label for="outlet-nama">Nama Outlet</label>
+                                    <input type="text" id="outlet-nama" placeholder="Misal: Alfamart By Pass" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="outlet-alamat">Alamat Lengkap</label>
+                                    <input type="text" id="outlet-alamat" placeholder="Masukkan alamat lengkap outlet...">
+                                </div>
+                                <div class="form-group">
+                                    <label for="outlet-telepon">No. Telepon / HP</label>
+                                    <input type="text" id="outlet-telepon" placeholder="Misal: 0231-999999">
+                                </div>
+                                <div class="form-actions align-right mt-3">
+                                    <button type="submit" id="btn-simpan-outlet" class="btn btn-primary">Tambah Outlet</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- OUTLETS TABLE CARD -->
+                <div class="card glass mt-4">
+                    <div class="card-header">
+                        <h3>Daftar Outlet Logistik Terdaftar</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-scroll-hint">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                            </svg>
+                            <span>Geser tabel ke samping untuk melihat data lengkap</span>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="table" id="table-outlet">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Nama Outlet</th>
+                                        <th>Alamat</th>
+                                        <th>No. Telepon</th>
+                                        <th>Tanggal Terdaftar</th>
+                                        <th class="align-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Terisi secara dinamis oleh JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="panel-laporan" class="content-panel hidden">
+                <!-- PRINT-ONLY REPORT HEADER -->
+                <div class="print-report-header only-print">
+                    <div class="company-logo-area" style="text-align: center; margin-bottom: 1.5rem;">
+                        <h2
+                            style="font-family: 'Outfit', sans-serif; font-weight: 800; letter-spacing: -0.025em; color: #1e293b; margin: 0;">
+                            PT GRAHA PRIMA MENTARI</h2>
+                        <p style="font-size: 0.85rem; color: #64748b; margin: 0.2rem 0 0 0; font-weight: 500;">
+                            Distributor & Logistics Center</p>
+                        <p style="font-size: 0.75rem; color: #94a3b8; margin: 0.1rem 0 0 0;">Jl. Tuparev No. 88,
+                            Cirebon, Jawa Barat | Telp: (0231) 224466</p>
+                        <hr style="border: 0; border-top: 2px solid #cbd5e1; margin-top: 1rem; margin-bottom: 1rem;">
+                        <h3 id="print-laporan-title"
+                            style="font-family: 'Outfit', sans-serif; font-weight: 700; color: #0f172a; text-transform: uppercase; margin: 0.5rem 0 0 0;">
+                            LAPORAN TRANSAKSI BARANG MASUK (INBOUND)</h3>
+                        <p id="print-laporan-period" style="font-size: 0.8rem; color: #475569; margin: 0.2rem 0 0 0;">
+                            Periode: Semua Waktu</p>
+                    </div>
+                </div>
+
+                <div class="card glass no-print">
+                    <div class="card-header">
+                        <h3>Filter Laporan Operasional</h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="form-filter-laporan" class="grid grid-4 align-items-end">
+                            <div class="form-group">
+                                <label for="filter-laporan-tipe">Pilih Laporan Operasional</label>
+                                <select id="filter-laporan-tipe">
+                                    <option value="1">Laporan Transaksi Barang Masuk</option>
+                                    <option value="2">Laporan Transaksi Barang Keluar </option>
+                                    <option value="3">Laporan Mutasi Stok </option>
+                                    <option value="4">Laporan Rekapitulasi Status Distribusi</option>
+                                    <option value="5">Laporan Performa Waktu Pengiriman </option>
+                                    <option value="6">Laporan Analisis Barang Distribusi Cepat </option>
+                                    <option value="7">Laporan Serapan Distribusi Berdasarkan Outlet</option>
+                                    <option value="8">Laporan Produktivitas Log Transaksi Admin Gudang</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="filter-tanggal-mulai">Tanggal Mulai</label>
+                                <input type="date" id="filter-tanggal-mulai">
+                            </div>
+                            <div class="form-group">
+                                <label for="filter-tanggal-selesai">Tanggal Selesai</label>
+                                <input type="date" id="filter-tanggal-selesai">
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" id="btn-reset-laporan" class="btn btn-secondary">Reset</button>
+                                <button type="button" id="btn-cetak-laporan" class="btn btn-primary">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                                        style="width: 16px; height: 16px; display: inline; vertical-align: middle; margin-right: 4px;">
+                                        <path fill-rule="evenodd"
+                                            d="M5 4v3H4a2 2 0 00-2 2v3a2 2 0 002 2h1v2a2 2 0 002 2h6a2 2 0 002-2v-2h1a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a2 2 0 00-2-2H7a2 2 0 00-2 2zm8 0H7v3h6V4zM5 14H4v-3a1 1 0 011-1h10a1 1 0 011 1v3h-1v-2a1 1 0 00-1-1H6a1 1 0 00-1 1v2zm2 0h6v2H7v-2z"
+                                            clip-rule="evenodd" />
+                                    </svg> Cetak Laporan
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- REPORT DATA TABLE -->
+                <div class="card glass mt-4">
+                    <div class="card-header flex-header no-print">
+                        <h3 id="table-laporan-title">Laporan Transaksi Barang Masuk (Inbound)</h3>
+                        <span class="report-badge">Integrated Admin Ledger</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-scroll-hint">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                            </svg>
+                            <span>Geser tabel ke samping untuk melihat data lengkap</span>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="table" id="table-laporan">
+                                <thead>
+                                    <!-- Terisi secara dinamis oleh JavaScript -->
+                                </thead>
+                                <tbody>
+                                    <!-- Terisi secara dinamis oleh JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ==========================================
+         3. PRINT MODAL: SURAT JALAN (INVOICE STYLE)
+         ========================================== -->
+    <div id="print-surat-jalan-modal" class="modal-wrapper hidden">
+        <div class="modal-content invoice-style">
+            <div class="modal-close-header no-print">
+                <button type="button" class="btn btn-secondary" onclick="closePrintModal()">Tutup</button>
+                <button type="button" class="btn btn-primary" onclick="window.print()">Cetak</button>
+            </div>
+
+            <!-- SURAT JALAN LAYOUT -->
+            <div class="surat-jalan-document">
+                <div class="document-header">
+                    <div class="company-logo-area">
+                        <h2>PT GRAHA PRIMA MENTARI</h2>
+                        <p>Distributor & Logistics Center</p>
+                        <p class="company-address">Jl. Tuparev No. 88, Cirebon, Jawa Barat | Telp: (0231) 224466</p>
+                    </div>
+                    <div class="document-title-area">
+                        <h3>SURAT JALAN DIGITAL</h3>
+                        <div class="invoice-meta-item">No: <span id="print-sj-nomor"
+                                class="text-bold">SJ-00000000</span></div>
+                        <div class="invoice-meta-item">Tanggal: <span id="print-sj-tanggal">20-05-2026</span></div>
+                    </div>
+                </div>
+
+                <hr class="document-divider">
+
+                <div class="document-details grid grid-2">
+                    <div class="detail-block">
+                        <p class="section-label">PENGIRIM:</p>
+                        <p class="text-bold">Gudang Utama PT GPM</p>
+                        <p>Penanggung Jawab: <span id="print-sj-admin">Budi Santoso</span></p>
+                    </div>
+                    <div class="detail-block text-right">
+                        <p class="section-label">TUJUAN OUTLET / DEALER:</p>
+                        <p id="print-sj-tujuan" class="text-bold">Alfamart Ahmad Yani</p>
+                        <p>Driver / Pengirim: <span id="print-sj-driver" class="text-bold">Andi Wijaya</span></p>
+                    </div>
+                </div>
+
+                <table class="document-table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Kode SKU</th>
+                            <th>Nama Barang</th>
+                            <th>Kategori</th>
+                            <th class="align-right">Jumlah Dikirim (Qty)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="print-sj-items-body">
+                        <!-- Dynamic rows -->
+                    </tbody>
+                </table>
+
+                <div class="document-notes mt-4">
+                    <p class="section-label">Keterangan:</p>
+                    <p id="print-sj-keterangan" class="text-italic">-</p>
+                </div>
+
+                <div class="document-signatures grid grid-3 mt-5">
+                    <div class="signature-box align-center">
+                        <p>Pengirim / Admin Gudang</p>
+                        <div class="signature-space"></div>
+                        <p class="signature-name" id="print-sj-sign-admin">Budi Santoso</p>
+                    </div>
+                    <div class="signature-box align-center">
+                        <p>Sopir / Driver</p>
+                        <div class="signature-space"></div>
+                        <p class="signature-name" id="print-sj-sign-driver">Andi Wijaya</p>
+                    </div>
+                    <div class="signature-box align-center">
+                        <p>Penerima / Dealer</p>
+                        <div class="signature-space"></div>
+                        <p class="signature-name">( ___________________ )</p>
+                    </div>
+                </div>
+
+                <div class="document-footer mt-5 align-center text-muted">
+                    <p>Dokumen ini sah dikeluarkan dari Sistem Informasi Administrasi Pengelolaan Gudang Terintegrasi PT
+                        GPM.</p>
+                    <p class="no-print text-bold mt-2">Gunakan Ctrl + P untuk mencetak dokumen ini secara rapi ke kertas
+                        atau menyimpannya sebagai file PDF.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP SCRIPT -->
+    <script src="app.js"></script>
+</body>
+
+</html>

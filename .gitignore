@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+/node_modules
+backend/node_modules/
+.pnp
+.pnp.js
+
+# Env files (CRITICAL SECURITY)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+backend/.env
+
+# Local development / IDE files
+.gemini/
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Documentation & Draft logs
+rancangan/
+rancangan.md
+rancangan laporan.md
+implementation_plan.md
+task.md
+walkthrough.md
+*walkthrough*
+*implementation_plan*
+
+# Agents & MCP Skills
+.agents/
+agents/
+skill-lock.json
+skills-lock.json
+database/
+

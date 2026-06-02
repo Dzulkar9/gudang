@@ -1,0 +1,102 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum UserRole {
+  Admin_Gudang @map("Admin Gudang")
+  Pimpinan
+  Pengantar_Barang @map("Pengantar Barang")
+}
+
+enum StatusDistribusi {
+  Persiapan
+  Pengiriman
+  Selesai
+}
+
+model User {
+  id              Int               @id @default(autoincrement())
+  username        String            @unique @db.VarChar(50)
+  password_hash   String            @db.Text
+  password_plain  String?           @db.VarChar(100)
+  role            UserRole
+  nama_lengkap    String            @db.VarChar(100)
+  created_at      DateTime          @default(now()) @db.Timestamp(6)
+  transaksi       TransaksiGudang[]
+
+  @@map("users")
+}
+
+model Barang {
+  id              Int                      @id @default(autoincrement())
+  kode_barang     String                   @unique @db.VarChar(20)
+  nama_barang     String                   @db.VarChar(150)
+  kategori        String                   @db.VarChar(50)
+  stok_minimum    Int                      @default(10)
+  stok_sekarang   Int                      @default(0)
+  harga           Decimal                  @default(0.00) @db.Decimal(12, 2)
+  created_at      DateTime                 @default(now()) @db.Timestamp(6)
+  updated_at      DateTime                 @default(now()) @updatedAt @db.Timestamp(6)
+  detail_transaksi DetailTransaksiGudang[]
+
+  @@map("barang")
+}
+
+model TransaksiGudang {
+  id                Int                      @id @default(autoincrement())
+  nomor_transaksi   String                   @unique @db.VarChar(50)
+  jenis_transaksi   String                   @db.VarChar(10) // 'IN' atau 'OUT'
+  tanggal_transaksi DateTime                 @default(now()) @db.Timestamp(6)
+  admin_id          Int
+  admin             User                     @relation(fields: [admin_id], references: [id])
+  keterangan        String?                  @db.Text
+  detail_transaksi  DetailTransaksiGudang[]
+  distribusi        Distribusi[]
+
+  @@map("transaksi_gudang")
+}
+
+model DetailTransaksiGudang {
+  id           Int             @id @default(autoincrement())
+  transaksi_id Int
+  transaksi    TransaksiGudang @relation(fields: [transaksi_id], references: [id], onDelete: Cascade)
+  barang_id    Int
+  barang       Barang          @relation(fields: [barang_id], references: [id])
+  jumlah       Int
+
+  @@map("detail_transaksi_gudang")
+}
+
+model Distribusi {
+  id                Int              @id @default(autoincrement())
+  surat_jalan       String           @unique @db.VarChar(50)
+  transaksi_id      Int
+  transaksi         TransaksiGudang  @relation(fields: [transaksi_id], references: [id], onDelete: Cascade)
+  outlet_tujuan     String           @db.VarChar(150)
+  nama_driver       String           @db.VarChar(100)
+  status_pengiriman StatusDistribusi @default(Persiapan)
+  tanggal_kirim     DateTime         @default(now()) @db.Timestamp(6)
+  tanggal_diterima  DateTime?        @db.Timestamp(6)
+  updated_at        DateTime         @default(now()) @updatedAt @db.Timestamp(6)
+
+  @@map("distribusi")
+}
+
+model Outlet {
+  id            Int      @id @default(autoincrement())
+  nama_outlet   String   @unique @db.VarChar(150)
+  alamat        String?  @db.Text
+  telepon       String?  @db.VarChar(20)
+  created_at    DateTime @default(now()) @db.Timestamp(6)
+
+  @@map("outlets")
+}
