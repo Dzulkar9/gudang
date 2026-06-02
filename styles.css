@@ -686,7 +686,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 /* Responsive adjustments */
-@media (max-width: 1200px) {
+@media screen and (max-width: 1200px) {
     .grid-4 {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -700,7 +700,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     }
 }
 
-@media (max-width: 1024px) {
+@media screen and (max-width: 1024px) {
     .main-content {
         margin-left: 0;
     }
@@ -1295,6 +1295,19 @@ input[type="date"]::-webkit-calendar-picker-indicator {
         padding: 0 !important;
     }
 
+    /* Reset shell containers to standard block layout for robust printing and orientation switching */
+    .app-container {
+        display: block !important;
+        width: 100% !important;
+        min-height: 0 !important;
+        height: auto !important;
+    }
+
+    .table-wrapper {
+        overflow: visible !important;
+        width: 100% !important;
+    }
+
     /* Hide elements that must never be printed */
     .no-print,
     .sidebar,
@@ -1302,7 +1315,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     .warning-banner,
     .form-actions,
     .modal-close-header,
-    #login-overlay {
+    #login-overlay,
+    .table-scroll-hint {
         display: none !important;
     }
 
@@ -1529,7 +1543,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 /* ====================================================================
    PREMIUM MOBILE & RESPONSIVE LAYOUT OVERRIDES (Screens <= 1024px)
    ==================================================================== */
-@media (max-width: 1024px) {
+@media screen and (max-width: 1024px) {
 
     /* Global screen constraints to prevent swiping/scrolling sideways */
     html,
@@ -2262,7 +2276,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 /* ====================================================================
    ULTRA-MOBILE VIEWPORT OPTIMIZATIONS (Tiny Smartphones <= 480px)
    ==================================================================== */
-@media (max-width: 480px) {
+@media screen and (max-width: 480px) {
 
     /* KPIs stack vertically on small devices to prevent squishing text */
     .kpi-row {
@@ -2307,7 +2321,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 /* ====================================================================
    ULTRA-WIDE SCREEN PRESENTATION (Desktops >= 1400px)
    ==================================================================== */
-@media (min-width: 1400px) {
+@media screen and (min-width: 1400px) {
 
     /* Full-width premium desktop presentation for tables and cards to span the entire screen */
     .main-content {
