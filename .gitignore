@@ -39,4 +39,5 @@ agents/
 skill-lock.json
 skills-lock.json
 database/
+backend/prisma/generated/
 
