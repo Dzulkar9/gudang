@@ -315,152 +315,6 @@ app.get('/api/transaksi', authenticateToken, isAnyRole, async (req, res) => {
     }
 });
 
-// Delete Transaction (Only Admin Gudang)
-app.delete('/api/transaksi/:id', authenticateToken, isAdminGudang, async (req, res) => {
-    const { id } = req.params;
-    try {
-        const result = await prisma.$transaction(async (tx) => {
-            const transaction = await tx.transaksiGudang.findUnique({
-                where: { id: parseInt(id) },
-                include: { detail_transaksi: true }
-            });
-
-            if (!transaction) {
-                throw new Error('Transaksi tidak ditemukan');
-            }
-
-            // Verify stock when deleting IN transactions (decreasing stock)
-            if (transaction.jenis_transaksi === 'IN') {
-                for (const detail of transaction.detail_transaksi) {
-                    const item = await tx.barang.findUnique({ where: { id: detail.barang_id } });
-                    if (!item) continue;
-
-                    const newStock = item.stok_sekarang - detail.jumlah;
-                    if (newStock < 0) {
-                        throw new Error(`Tidak dapat menghapus transaksi karena stok ${item.nama_barang} akan bernilai negatif (${newStock})`);
-                    }
-
-                    await tx.barang.update({
-                        where: { id: item.id },
-                        data: { stok_sekarang: newStock }
-                    });
-                }
-            } else if (transaction.jenis_transaksi === 'OUT') {
-                // Deleting OUT transactions increases stock back
-                for (const detail of transaction.detail_transaksi) {
-                    const item = await tx.barang.findUnique({ where: { id: detail.barang_id } });
-                    if (!item) continue;
-
-                    await tx.barang.update({
-                        where: { id: item.id },
-                        data: { stok_sekarang: item.stok_sekarang + detail.jumlah }
-                    });
-                }
-            }
-
-            await tx.transaksiGudang.delete({
-                where: { id: parseInt(id) }
-            });
-
-            return { message: 'Transaksi berhasil dihapus' };
-        });
-
-        res.json(result);
-    } catch (error) {
-        res.status(400).json({ message: error.message });
-    }
-});
-
-// Edit Transaction (Only Admin Gudang)
-app.put('/api/transaksi/:id', authenticateToken, isAdminGudang, async (req, res) => {
-    const { id } = req.params;
-    const { keterangan, detail_items } = req.body;
-
-    if (!detail_items || detail_items.length === 0) {
-        return res.status(400).json({ message: 'Detail barang tidak boleh kosong' });
-    }
-
-    try {
-        const result = await prisma.$transaction(async (tx) => {
-            const transaction = await tx.transaksiGudang.findUnique({
-                where: { id: parseInt(id) },
-                include: { detail_transaksi: true }
-            });
-
-            if (!transaction) {
-                throw new Error('Transaksi tidak ditemukan');
-            }
-
-            if (transaction.jenis_transaksi !== 'IN') {
-                throw new Error('Hanya transaksi bertipe IN yang dapat diedit');
-            }
-
-            // Calculate net changes to prevent temporary/unnecessary negative stock violations
-            const oldMap = {};
-            transaction.detail_transaksi.forEach(d => {
-                oldMap[d.barang_id] = d.jumlah;
-            });
-
-            const newMap = {};
-            detail_items.forEach(item => {
-                newMap[parseInt(item.barang_id)] = item.jumlah;
-            });
-
-            const allBarangIds = new Set([...Object.keys(oldMap), ...Object.keys(newMap)]);
-
-            // Verify final stocks & update
-            for (const bIdStr of allBarangIds) {
-                const bId = parseInt(bIdStr);
-                const oldQty = oldMap[bId] || 0;
-                const newQty = newMap[bId] || 0;
-                const netChange = newQty - oldQty;
-
-                if (netChange !== 0) {
-                    const item = await tx.barang.findUnique({ where: { id: bId } });
-                    if (!item) throw new Error(`Barang dengan ID ${bId} tidak ditemukan`);
-
-                    const finalStock = item.stok_sekarang + netChange;
-                    if (finalStock < 0) {
-                        throw new Error(`Tidak dapat mengubah transaksi karena stok ${item.nama_barang} akan bernilai negatif (${finalStock})`);
-                    }
-
-                    await tx.barang.update({
-                        where: { id: bId },
-                        data: { stok_sekarang: finalStock }
-                    });
-                }
-            }
-
-            // Replace details
-            await tx.detailTransaksiGudang.deleteMany({
-                where: { transaksi_id: transaction.id }
-            });
-
-            for (const item of detail_items) {
-                await tx.detailTransaksiGudang.create({
-                    data: {
-                        transaksi_id: transaction.id,
-                        barang_id: parseInt(item.barang_id),
-                        jumlah: item.jumlah
-                    }
-                });
-            }
-
-            // Update header
-            const updatedTx = await tx.transaksiGudang.update({
-                where: { id: transaction.id },
-                data: { keterangan }
-            });
-
-            return updatedTx;
-        });
-
-        res.json({ message: 'Transaksi berhasil diperbarui', data: result });
-    } catch (error) {
-        res.status(400).json({ message: error.message });
-    }
-});
-
 // ==========================================
 // DISTRIBUSI ROUTES
 // ==========================================
@@ -996,7 +850,7 @@ app.get('/api/reports/rekap-distribusi', authenticateToken, isAuthorizedForRepor
         });
 
         const formatted = distributions.map(d => {
-            const detailMuatan = d.transaksi?.detail_transaksi?.map(det =>
+            const detailMuatan = d.transaksi?.detail_transaksi?.map(det => 
                 `${det.barang.nama_barang} (${det.jumlah} unit)`
             ).join(', ') || '-';
 
@@ -1056,7 +910,7 @@ app.get('/api/reports/lead-time', authenticateToken, isAuthorizedForReports, asy
                 const diffMins = Math.floor(diffMs / 60000);
                 const diffHours = Math.floor(diffMins / 60);
                 const remainingMins = diffMins % 60;
-
+                
                 if (diffHours > 0) {
                     durasiTeks = `${diffHours} jam ${remainingMins} menit`;
                 } else {
@@ -1259,7 +1113,7 @@ app.get('/api/reports/admin-productivity', authenticateToken, isAuthorizedForRep
         const formatted = admins.map(u => {
             const inCount = u.transaksi.filter(t => t.jenis_transaksi === 'IN').length;
             const outCount = u.transaksi.filter(t => t.jenis_transaksi === 'OUT').length;
-
+            
             return {
                 nama_admin: u.nama_lengkap,
                 jabatan: 'Admin Gudang',
